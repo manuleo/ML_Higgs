@@ -1,4 +1,4 @@
 .ipynb_checkpoints
 *.DS_Store
-Prject1/data/submission.csv
+*.csv
 _pycache_
