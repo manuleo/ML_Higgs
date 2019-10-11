@@ -42,7 +42,7 @@ def create_csv_submission(ids, y_pred, name):
     """
     with open(name, 'w') as csvfile:
         fieldnames = ['Id', 'Prediction']
-        writer = csv.DictWriter(csvfile, delimiter=",", fieldnames=fieldnames)
+        writer = csv.DictWriter(csvfile, delimiter=",", fieldnames=fieldnames, dialect='unix')
         writer.writeheader()
         for r1, r2 in zip(ids, y_pred):
             writer.writerow({'Id':int(r1),'Prediction':int(r2)})
