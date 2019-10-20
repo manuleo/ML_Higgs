@@ -32,6 +32,16 @@ def build_poly(x, degree):
     psi = np.power(psi, d)
     return psi
 
+def get_subsample(y, x, sub_size, seed=1):
+    np.random.seed(seed)
+    indexes = np.arange(x.shape[0])
+    np.random.shuffle(indexes)  
+    sub_index = indexes[:sub_size] 
+    x_sub = x[sub_index,:]
+    y_sub = y[sub_index]
+    return y_sub, x_sub
+
+
 def compute_gradient(y, tx, w):
     """Compute the gradient."""
     e=y-tx.dot(w)
