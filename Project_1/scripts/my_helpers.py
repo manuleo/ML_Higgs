@@ -27,8 +27,8 @@ def split_data(y, x, ratio, seed=1):
 
 def build_poly(x, degree):
     """polynomial basis functions for input data x, for j=0 up to j=degree."""
-    d = np.arange(0, degree+1).repeat(x.shape[1])
-    psi = np.tile(x, degree+1)
+    d = np.arange(1, degree+1).repeat(x.shape[1])
+    psi = np.tile(x, degree)
     psi = np.power(psi, d)
     return psi
 
