@@ -4,16 +4,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def cross_validation_visualization(lambds, mse_tr, mse_te):
+def cross_validation_visualization(lambds, mse_tr, mse_te, d):
     """visualization the curves of mse_tr and mse_te."""
+    plt.figure(d)
     plt.semilogx(lambds, mse_tr, marker=".", color='b', label='train error')
     plt.semilogx(lambds, mse_te, marker=".", color='r', label='test error')
     plt.xlabel("lambda")
     plt.ylabel("rmse")
-    plt.title("cross validation")
+    plt.title("cross validation - degree {}".format(d))
     plt.legend(loc=2)
     plt.grid(True)
-    plt.savefig("cross_validation")
+    #plt.savefig("cross_validation")
 
 
 def bias_variance_decomposition_visualization(degrees, rmse_tr, rmse_te):
