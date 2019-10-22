@@ -53,8 +53,12 @@ def preprocessing(y, tX, test=False):
         return y_new, tX_new, ids_new, means, stds
     else:
         return tX_new, ids_new, means, stds
+    
+def y_for_logistic(y):
+    y_new = np.where(y==-1, 0, y)
+    return y_new
 
-def build_predictions(tX, indexes, w, degrees=[]):
+def build_predictions(tX, indexes, w, degrees=[], logistic=False):
     N = 0
     for jet in range(0, 4):
         N += tX[jet].shape[0]
@@ -65,7 +69,10 @@ def build_predictions(tX, indexes, w, degrees=[]):
             x = build_poly(tX[jet], degrees[jet])
         else:
             x = tX[jet]
-        y_p = predict_labels(w[jet], x)
+        if (logistic==False):
+            y_p = predict_labels(w[jet], x)
+        else:
+            y_p = predict_labels_logistic(w[jet], x)
         index = indexes[jet]
         y_pred[index] = y_p
 
@@ -105,8 +112,8 @@ def split_data(y, x, ratio, seed=1):
 
 def build_poly(x, degree):
     """polynomial basis functions for input data x, for j=0 up to j=degree."""
-    d = np.arange(0, degree+1).repeat(x.shape[1])
-    psi = np.tile(x, degree+1)
+    d = np.arange(1, degree+1).repeat(x.shape[1])
+    psi = np.tile(x, degree)
     psi = np.power(psi, d)
     return psi
 
