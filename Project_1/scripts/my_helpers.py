@@ -1,6 +1,83 @@
 # -*- coding: utf-8 -*-
 """my helper functions."""
 import numpy as np
+import pandas as pd
+from lab_helpers import *
+from proj1_helpers import *
+
+def preprocessing(y, tX, test=False):
+    tX_pd = pd.DataFrame(tX)
+    tX_pds = []
+    for jet in range(0, 4):
+        tX_pds.append(tX_pd[tX_pd[22]==jet])
+    
+    #dropping
+    drops_0 = [4, 5, 6, 12, 23, 24, 25, 26, 27, 28, 29] # 29 all zeros
+    drops_1 = [4, 5, 6, 12, 26, 27, 28]
+    drop_22 = [22]
+    tX_pds[0].drop(drops_0, axis=1, inplace=True)
+    tX_pds[1].drop(drops_1, axis=1, inplace=True)
+    for jet in range(0, 4):
+        tX_pds[jet].drop(drop_22, axis=1, inplace=True)
+    
+    for jet in range(0, 4):
+        tX_pd[jet].where(tX_pd[jet]!=-999, inplace=True)
+        tX_pd[jet].fillna(tX_pd[jet].median(), inplace=True)    
+    
+    #new datasets
+    if test==False:
+        y_new = []
+        for jet in range(0, 4):
+            y_new.append(y[tX_pds[jet].index.values])
+    
+    tX_new = []
+    for jet in range(0, 4):
+        tX_new.append(tX_pds[jet].values)
+    
+    ids_new = []
+    for jet in range(0, 4):
+        ids_new.append(tX_pds[jet].index.values)
+        
+    #normalize
+    means, stds = [], []
+    for jet in range (0, 4):
+        tX_new[jet], mean, std = standardize(tX_new[jet])
+        means.append(mean)
+        stds.append(std)
+    
+    #new 1s column
+    for jet in range(0,4):
+        tX_new[jet] = np.c_[np.ones(tX_new[jet].shape[0]), tX_new[jet]]
+        
+    if test==False:
+        return y_new, tX_new, ids_new, means, stds
+    else:
+        return tX_new, ids_new, means, stds
+
+def build_predictions(tX, indexes, w, degrees=[]):
+    N = 0
+    for jet in range(0, 4):
+        N += tX[jet].shape[0]
+    
+    y_pred = np.zeros(N)
+    for jet in range (0, 4):
+        if (len(degrees) != 0):
+            x = build_poly(tX[jet], degrees[jet])
+        else:
+            x = tX[jet]
+        y_p = predict_labels(w[jet], x)
+        index = indexes[jet]
+        y_pred[index] = y_p
+
+    return y_pred
+
+def accuracy(y_real, y_pred):
+    N = len(y_real)
+    if N!=len(y_pred):
+        raise Exception('y_pred length wrong')
+    correct = np.sum(y_real==y_pred)
+    return correct/N
+        
 
 def split_data(y, x, ratio, seed=1):
     """
@@ -10,25 +87,26 @@ def split_data(y, x, ratio, seed=1):
     """
     # set seed
     np.random.seed(seed)
+    N = x.shape[0]
     
-    train_size = round(x.shape[0] * ratio)
-    indexes = np.arange(x.shape[0])
-    np.random.shuffle(indexes)
+    size_tr = round(N* ratio)
+    index = np.arange(N)
+    np.random.shuffle(index)
     
-    train_indexes = indexes[:train_size]
-    test_indexes = np.setdiff1d(indexes, train_indexes)    
-    x_train = x[train_indexes,:]
-    y_train = y[train_indexes]
+    ind_tr = index[:size_tr]
+    ind_te= np.setdiff1d(index, ind_tr)   
     
-    x_test = x[test_indexes,:]
-    y_test = y[test_indexes]
+    x_train = x[ind_tr]
+    y_train = y[ind_tr]
+    x_test = x[ind_te]
+    y_test = y[ind_te]
     
     return x_train, x_test, y_train, y_test
 
 def build_poly(x, degree):
     """polynomial basis functions for input data x, for j=0 up to j=degree."""
-    d = np.arange(1, degree+1).repeat(x.shape[1])
-    psi = np.tile(x, degree)
+    d = np.arange(0, degree+1).repeat(x.shape[1])
+    psi = np.tile(x, degree+1)
     psi = np.power(psi, d)
     return psi
 
