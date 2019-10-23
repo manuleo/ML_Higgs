@@ -43,7 +43,7 @@ def load_csv_data(data_path, sub_sample=False):
 #     return yb, input_data, ids
 
 def sigmoid(t):
-    return 1/(1+exp(-t))
+    return 1/(1+mp.exp(-t))
 
 def predict_labels(weights, data):
     """Generates class predictions given weights, and a test data matrix"""

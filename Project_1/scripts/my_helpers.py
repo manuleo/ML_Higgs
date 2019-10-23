@@ -7,46 +7,58 @@ from proj1_helpers import *
 
 def preprocessing(y, tX, test=False):
     tX_pd = pd.DataFrame(tX)
-    tX_pds = []
+    tX_pds1 = []
     for jet in range(0, 4):
-        tX_pds.append(tX_pd[tX_pd[22]==jet])
+        tX_pds1.append(tX_pd[tX_pd[22]==jet])
     
     #dropping
     drops_0 = [4, 5, 6, 12, 23, 24, 25, 26, 27, 28, 29] # 29 all zeros
     drops_1 = [4, 5, 6, 12, 26, 27, 28]
     drop_22 = [22]
-    tX_pds[0].drop(drops_0, axis=1, inplace=True)
-    tX_pds[1].drop(drops_1, axis=1, inplace=True)
+    tX_pds1[0].drop(drops_0, axis=1, inplace=True)
+    tX_pds1[1].drop(drops_1, axis=1, inplace=True)
     for jet in range(0, 4):
-        tX_pds[jet].drop(drop_22, axis=1, inplace=True)
+        tX_pds1[jet].drop(drop_22, axis=1, inplace=True)
     
+    tX_pds = []
     for jet in range(0, 4):
-        tX_pd[jet].where(tX_pd[jet]!=-999, inplace=True)
-        tX_pd[jet].fillna(tX_pd[jet].median(), inplace=True)    
+        indexes_nan = tX_pds1[jet][0] == -999
+        indexes_not_nan = tX_pds1[jet][0] != -999
+        tX_pds.append(tX_pds1[jet][indexes_nan])
+        tX_pds.append(tX_pds1[jet][indexes_not_nan])
+    
+    drop_0 = [0]
+    for jet in range(0, 8):
+        if (jet%2==0):
+            tX_pds[jet].drop(drop_0, axis=1, inplace=True)
+    
+    #for jet in range(0, 4):
+     #   tX_pd[jet].where(tX_pd[jet]!=-999, inplace=True)
+      #  tX_pd[jet].fillna(tX_pd[jet].median(), inplace=True)    
     
     #new datasets
     if test==False:
         y_new = []
-        for jet in range(0, 4):
+        for jet in range(0, 8):
             y_new.append(y[tX_pds[jet].index.values])
     
     tX_new = []
-    for jet in range(0, 4):
+    for jet in range(0, 8):
         tX_new.append(tX_pds[jet].values)
     
     ids_new = []
-    for jet in range(0, 4):
+    for jet in range(0, 8):
         ids_new.append(tX_pds[jet].index.values)
         
     #normalize
     means, stds = [], []
-    for jet in range (0, 4):
+    for jet in range (0, 8):
         tX_new[jet], mean, std = standardize(tX_new[jet])
         means.append(mean)
         stds.append(std)
     
     #new 1s column
-    for jet in range(0,4):
+    for jet in range(0,8):
         tX_new[jet] = np.c_[np.ones(tX_new[jet].shape[0]), tX_new[jet]]
         
     if test==False:
