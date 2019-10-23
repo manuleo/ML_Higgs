@@ -72,11 +72,11 @@ def y_for_logistic(y):
 
 def build_predictions(tX, indexes, w, degrees=[], logistic=False):
     N = 0
-    for jet in range(0, 4):
+    for jet in range(0, 8):
         N += tX[jet].shape[0]
     
     y_pred = np.zeros(N)
-    for jet in range (0, 4):
+    for jet in range (0, 8):
         if (len(degrees) != 0):
             x = build_poly(tX[jet], degrees[jet])
         else:

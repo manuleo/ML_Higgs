@@ -43,7 +43,7 @@ def load_csv_data(data_path, sub_sample=False):
 #     return yb, input_data, ids
 
 def sigmoid(t):
-    return 1/(1+mp.exp(-t))
+    return 1/(1+np.exp(-t))
 
 def predict_labels(weights, data):
     """Generates class predictions given weights, and a test data matrix"""
@@ -56,7 +56,7 @@ def predict_labels(weights, data):
 def predict_labels_logistic(weights, data):
     """Generates class predictions given weights, and a test data matrix"""
     y_pred = sigmoid(np.dot(data, weights))
-    y_pred[np.where(y_pred <= 0.5)] = -1
+    y_pred[np.where(y_pred <= 0.5)] = 0
     y_pred[np.where(y_pred > 0.5)] = 1
     return y_pred
 
@@ -69,7 +69,7 @@ def create_csv_submission(ids, y_pred, name, logistic=False):
                name (string name of .csv output file to be created)
     """
     if (logistic==True):
-        y_pred = np.where(y==0, -1, y)
+        y_pred = np.where(y_pred==0, -1, y_pred)
     
     with open(name, 'w') as csvfile:
         fieldnames = ['Id', 'Prediction']
