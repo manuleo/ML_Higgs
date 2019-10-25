@@ -61,6 +61,13 @@ def preprocessing(y, tX, test=False):
     for jet in range(0,8):
         tX_new[jet] = np.c_[np.ones(tX_new[jet].shape[0]), tX_new[jet]]
         
+    #new processing discovered after visualizing data
+    tX_new[0] = np.delete(tX_new[0], 3, 1)
+    log0 = [1, 2, 3, 4, 5, 6, 7, 8, 11, 14, 16]
+    tX_new[0][:, log0] = np.log1p(tX_new[0][:, log0])
+    tX_new[1] = np.delete(tX_new[1], 4, 1)
+    log1 = [1, 2, 3, 5, 6, 7, 8, 12, 15, 17]
+        
     if test==False:
         return y_new, tX_new, ids_new, means, stds
     else:
