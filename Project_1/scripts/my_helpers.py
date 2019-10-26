@@ -50,7 +50,7 @@ def preprocessing(y, tX, test=False):
     for jet in range(0, 8):
         ids_new.append(tX_pds[jet].index.values)
         
-    #normalize
+    #standardize
     means, stds = [], []
     for jet in range (0, 8):
         tX_new[jet], mean, std = standardize(tX_new[jet])
@@ -62,12 +62,34 @@ def preprocessing(y, tX, test=False):
         tX_new[jet] = np.c_[np.ones(tX_new[jet].shape[0]), tX_new[jet]]
         
     #new processing discovered after visualizing data
+    
     log0 = [1, 2, 4, 5, 6, 7, 8, 9, 12, 15, 17]
     tX_new[0][:, log0] = np.log1p(tX_new[0][:, log0])
     tX_new[0] = np.delete(tX_new[0], 3, 1)
+    
     log1 = [1, 2, 3, 6, 7, 8, 9, 13, 16, 18]
     tX_new[1][:, log1] = np.log1p(tX_new[1][:, log1])
     tX_new[1] = np.delete(tX_new[1], 4, 1)
+    
+    log2 = [1,2,3,5,6,7,8,9,12,15,17,18]
+    tX_new[2][:, log2] = np.log1p(tX_new[2][:, log2])
+    tX_new[2] = np.delete(tX_new[2], 21, 1)
+    
+    log3 = [1,2,3,4,6,7,8,10,13,16,18,19,22]
+    tX_new[3][:, log3] = np.log1p(tX_new[3][:, log3])
+    tX_new[3] = np.delete(tX_new[3], 22, 1)
+    
+    log4 = [1,2,3,5,8,9,10,13,16,19,22,25,28]
+    tX_new[4][:, log4] = np.log1p(tX_new[4][:, log4])
+    
+    log5 = [2,3,4,6,9,10,11,14,17,20,23,26,29]
+    tX_new[5][:, log5] = np.log1p(tX_new[5][:, log5])
+    
+    log6 = [1,2,3,5,8,9,10,13,16,19,22,25,28]
+    tX_new[5][:, log5] = np.log1p(tX_new[5][:, log5])
+    
+    log7 = [1,2,3,4,5,6,8,9,10,11,14,17,20,22,23,26,29]
+    tX_new[5][:, log5] = np.log1p(tX_new[5][:, log5])
         
     if test==False:
         return y_new, tX_new, ids_new, means, stds
