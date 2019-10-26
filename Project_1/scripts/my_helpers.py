@@ -10,7 +10,7 @@ def preprocessing(y, tX, test=False):
     tX = np.append(tX, index, axis=1)
     tX_pds1 = []
     for jet in range(0, 4):
-        tX_pds1.append(tX[tX[:,22] == 0])
+        tX_pds1.append(tX[tX[:,22] == jet])
     
     #dropping
     # we drop the column 22 in each "jet"
@@ -20,6 +20,7 @@ def preprocessing(y, tX, test=False):
     drops_1 = [4, 5, 6, 12, 25, 26, 27]
     tX_pds1[0] = np.delete(tX_pds1[0],drops_0,1)
     tX_pds1[1] = np.delete(tX_pds1[1],drops_1, axis=1)
+    
     
     tX_pds = []
     for jet in range(0, 4):
@@ -31,6 +32,7 @@ def preprocessing(y, tX, test=False):
     for jet in range(0, 8):
         if (jet%2==0):
             tX_pds[jet] = np.delete(tX_pds[jet],0,1)
+            
     
     #for jet in range(0, 4):
      #   tX_pd[jet].where(tX_pd[jet]!=-999, inplace=True)
@@ -48,13 +50,6 @@ def preprocessing(y, tX, test=False):
         
     for jet in range(0,8):
         tX_pds[jet] = np.delete(tX_pds[jet],tX_pds[jet].shape[1]-1,1)
-        
-    #normalize
-    means, stds = [], []
-    for jet in range (0, 8):
-        tX_pds[jet], mean, std = standardize(tX_pds[jet])
-        means.append(mean)
-        stds.append(std)
     
     #new 1s column
     for jet in range(0,8):
@@ -62,33 +57,39 @@ def preprocessing(y, tX, test=False):
         
     #new processing discovered after visualizing data
     
-    log0 = [1, 2, 4, 5, 6, 7, 8, 9, 12, 15, 17]
-    tX_pds[0][:, log0] = np.log1p(tX_pds[0][:, log0])
+    cub0 = [1, 2, 4, 5, 6, 7, 8, 9, 12, 15, 17]
+    tX_pds[0][:, cub0] = np.cbrt(tX_pds[0][:, cub0])
     tX_pds[0] = np.delete(tX_pds[0], 3, 1)
     
-    log1 = [1, 2, 3, 6, 7, 8, 9, 13, 16, 18]
-    tX_pds[1][:, log1] = np.log1p(tX_pds[1][:, log1])
+    cub1 = [1, 2, 3, 6, 7, 8, 9, 13, 16, 18]
+    tX_pds[1][:, cub1] = np.cbrt(tX_pds[1][:, cub1])
     tX_pds[1] = np.delete(tX_pds[1], 4, 1)
     
-    log2 = [1,2,3,5,6,7,8,9,12,15,17,18]
-    tX_pds[2][:, log2] = np.log1p(tX_pds[2][:, log2])
+    cub2 = [1,2,3,5,6,7,8,9,12,15,17,18]
+    tX_pds[2][:, cub2] = np.cbrt(tX_pds[2][:, cub2])
     tX_pds[2] = np.delete(tX_pds[2], 21, 1)
     
-    log3 = [1,2,3,4,6,7,8,10,13,16,18,19,22]
-    tX_pds[3][:, log3] = np.log1p(tX_pds[3][:, log3])
+    cub3 = [1,2,3,4,6,7,8,10,13,16,18,19,22]
+    tX_pds[3][:, cub3] = np.cbrt(tX_pds[3][:, cub3])
     tX_pds[3] = np.delete(tX_pds[3], 22, 1)
     
-    log4 = [1,2,3,5,8,9,10,13,16,19,22,25,28]
-    tX_pds[4][:, log4] = np.log1p(tX_pds[4][:, log4])
+    cub4 = [1,2,3,5,8,9,10,13,16,19,22,25,28]
+    tX_pds[4][:, cub4] = np.cbrt(tX_pds[4][:, cub4])
     
-    log5 = [2,3,4,6,9,10,11,14,17,20,23,26,29]
-    tX_pds[5][:, log5] = np.log1p(tX_pds[5][:, log5])
+    cub5 = [2,3,4,6,9,10,11,14,17,20,23,26,29]
+    tX_pds[5][:, cub5] = np.cbrt(tX_pds[5][:, cub5])
     
-    log6 = [1,2,3,5,8,9,10,13,16,19,22,25,28]
-    tX_pds[5][:, log5] = np.log1p(tX_pds[5][:, log5])
+    cub6 = [1,2,3,5,8,9,10,13,16,19,22,25,28]
+    tX_pds[6][:, cub6] = np.cbrt(tX_pds[6][:, cub6])
     
-    log7 = [1,2,3,4,5,6,8,9,10,11,14,17,20,22,23,26,29]
-    tX_pds[5][:, log5] = np.log1p(tX_pds[5][:, log5])
+    cub7 = [1,2,3,4,5,6,8,9,10,11,14,17,20,22,23,26,29]
+    tX_pds[7][:, cub7] = np.cbrt(tX_pds[7][:, cub7])
+    
+    means, stds = [], []
+    for jet in range (0, 8):
+        tX_pds[jet], mean, std = standardize(tX_pds[jet])
+        means.append(mean)
+        stds.append(std)
         
     if test==False:
         return y_new, tX_pds, ids_new, means, stds
