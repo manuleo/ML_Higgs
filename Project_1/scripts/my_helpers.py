@@ -6,31 +6,31 @@ from lab_helpers import *
 from proj1_helpers import *
 
 def preprocessing(y, tX, test=False):
-    tX_pd = pd.DataFrame(tX)
+    index = np.array(range(0,tX.shape[0])).reshape((tX.shape[0],1))
+    tX = np.append(tX, index, axis=1)
     tX_pds1 = []
     for jet in range(0, 4):
-        tX_pds1.append(tX_pd[tX_pd[22]==jet])
+        tX_pds1.append(tX[tX[:,22] == 0])
     
     #dropping
-    drops_0 = [4, 5, 6, 12, 23, 24, 25, 26, 27, 28, 29] # 29 all zeros
-    drops_1 = [4, 5, 6, 12, 26, 27, 28]
-    drop_22 = [22]
-    tX_pds1[0].drop(drops_0, axis=1, inplace=True)
-    tX_pds1[1].drop(drops_1, axis=1, inplace=True)
+    # we drop the column 22 in each "jet"
     for jet in range(0, 4):
-        tX_pds1[jet].drop(drop_22, axis=1, inplace=True)
+        tX_pds1[jet] = np.delete(tX_pds1[jet],22,1)
+    drops_0 = [4, 5, 6, 12, 22, 23, 24, 25, 26, 27, 28] # 29 all zeros
+    drops_1 = [4, 5, 6, 12, 25, 26, 27]
+    tX_pds1[0] = np.delete(tX_pds1[0],drops_0,1)
+    tX_pds1[1] = np.delete(tX_pds1[1],drops_1, axis=1)
     
     tX_pds = []
     for jet in range(0, 4):
-        indexes_nan = tX_pds1[jet][0] == -999
-        indexes_not_nan = tX_pds1[jet][0] != -999
+        indexes_nan = np.where(tX_pds1[jet][:,0] == -999)
+        indexes_not_nan = np.where(tX_pds1[jet][:,0] != -999)
         tX_pds.append(tX_pds1[jet][indexes_nan])
         tX_pds.append(tX_pds1[jet][indexes_not_nan])
     
-    drop_0 = [0]
     for jet in range(0, 8):
         if (jet%2==0):
-            tX_pds[jet].drop(drop_0, axis=1, inplace=True)
+            tX_pds[jet] = np.delete(tX_pds[jet],0,1)
     
     #for jet in range(0, 4):
      #   tX_pd[jet].where(tX_pd[jet]!=-999, inplace=True)
@@ -40,61 +40,30 @@ def preprocessing(y, tX, test=False):
     if test==False:
         y_new = []
         for jet in range(0, 8):
-            y_new.append(y[tX_pds[jet].index.values])
-    
-    tX_new = []
-    for jet in range(0, 8):
-        tX_new.append(tX_pds[jet].values)
+            y_new.append(y[tX_pds[jet][:,tX_pds[jet].shape[1]-1].astype(int)])
     
     ids_new = []
     for jet in range(0, 8):
-        ids_new.append(tX_pds[jet].index.values)
+        ids_new.append(tX_pds[jet][:,tX_pds[jet].shape[1]-1].astype(int))
         
-    #standardize
+    for jet in range(0,8):
+        tX_pds[jet] = np.delete(tX_pds[jet],tX_pds[jet].shape[1]-1,1)
+        
+    #normalize
     means, stds = [], []
     for jet in range (0, 8):
-        tX_new[jet], mean, std = standardize(tX_new[jet])
+        tX_pds[jet], mean, std = standardize(tX_pds[jet])
         means.append(mean)
         stds.append(std)
     
     #new 1s column
     for jet in range(0,8):
-        tX_new[jet] = np.c_[np.ones(tX_new[jet].shape[0]), tX_new[jet]]
-        
-    #new processing discovered after visualizing data
-    
-    log0 = [1, 2, 4, 5, 6, 7, 8, 9, 12, 15, 17]
-    tX_new[0][:, log0] = np.log1p(tX_new[0][:, log0])
-    tX_new[0] = np.delete(tX_new[0], 3, 1)
-    
-    log1 = [1, 2, 3, 6, 7, 8, 9, 13, 16, 18]
-    tX_new[1][:, log1] = np.log1p(tX_new[1][:, log1])
-    tX_new[1] = np.delete(tX_new[1], 4, 1)
-    
-    log2 = [1,2,3,5,6,7,8,9,12,15,17,18]
-    tX_new[2][:, log2] = np.log1p(tX_new[2][:, log2])
-    tX_new[2] = np.delete(tX_new[2], 21, 1)
-    
-    log3 = [1,2,3,4,6,7,8,10,13,16,18,19,22]
-    tX_new[3][:, log3] = np.log1p(tX_new[3][:, log3])
-    tX_new[3] = np.delete(tX_new[3], 22, 1)
-    
-    log4 = [1,2,3,5,8,9,10,13,16,19,22,25,28]
-    tX_new[4][:, log4] = np.log1p(tX_new[4][:, log4])
-    
-    log5 = [2,3,4,6,9,10,11,14,17,20,23,26,29]
-    tX_new[5][:, log5] = np.log1p(tX_new[5][:, log5])
-    
-    log6 = [1,2,3,5,8,9,10,13,16,19,22,25,28]
-    tX_new[5][:, log5] = np.log1p(tX_new[5][:, log5])
-    
-    log7 = [1,2,3,4,5,6,8,9,10,11,14,17,20,22,23,26,29]
-    tX_new[5][:, log5] = np.log1p(tX_new[5][:, log5])
+        tX_pds[jet] = np.c_[np.ones(tX_pds[jet].shape[0]), tX_pds[jet]]
         
     if test==False:
-        return y_new, tX_new, ids_new, means, stds
+        return y_new, tX_pds, ids_new, means, stds
     else:
-        return tX_new, ids_new, means, stds
+        return tX_pds, ids_new, means, stds
     
 def y_for_logistic(y):
     y_new = np.where(y==-1, 0, y)
