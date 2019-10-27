@@ -1,6 +1,7 @@
 # EPFL ML Project 1
 
-- Detecting the Higgs Boson.
+Detecting the Higgs Boson. Project about binary classification on a data-set which come directly from CERN.
+
 
 #### Prerequisites
 
@@ -10,13 +11,11 @@
 
 3. Numpy
 
-4. in windows:
 
-    - anaconda environment
 
 #### Usage instructions
 
-1. Go to the directory of the project's folder
+1. Go to the project's directory
 
 2. Copy there the **train.csv** and **test.csv** files
 
@@ -33,3 +32,6 @@
 * implementations.py - Implementations of the 6 mandatory algorithms.
 * implementations_helpers.py - Helper functions for the algorithms in implementations.py
 * report.pdf - The report containg all the steps we followed to reach the final submission: abstract, introduction, model and methods, results and summary.
+
+### Authors
+Manuel Leone, Gabriele Macchi, Marco Vicentini
