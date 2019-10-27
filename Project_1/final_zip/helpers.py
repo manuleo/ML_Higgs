@@ -1,26 +1,98 @@
-"""General helpers function"""
+"""All helpers function"""
 # -*- coding: utf-8 -*-
 import numpy as np
 import csv
 from implementation_helpers import standardize, compute_loss, sigmoid
 from implementations import ridge_regression
 
+# GENERAL HELPERS FUNCTION
+  
+def y_for_logistic(y):
+    """
+    this function changes the -1 in 0 in the y vector to use it in the logistic regression
+    """
+    y_new = np.where(y==-1, 0, y)
+    return y_new
+
+
+def accuracy(y_real, y_pred):
+    """
+    compute the accuracy: percentage of correct predictions over the total number of predictions
+    INPUTS: y_real := the y vector of true labels
+            y_pred := the y vector of the predicted labels
+    OUTPUTS: accuracy
+    """
+    N = len(y_real)
+    if N!=len(y_pred):
+        raise Exception('y_pred length wrong')
+    correct = np.sum(y_real==y_pred)
+    return correct/N
+        
+
+def split_data(y, x, ratio, seed=1):
+    """
+    split the dataset based on the split ratio. If ratio is 0.8 
+    you will have 80% of your data set dedicated to training 
+    and the rest dedicated to testing
+    """
+    # set seed
+    np.random.seed(seed)
+    N = x.shape[0]
+    
+    size_tr = round(N* ratio)
+    index = np.arange(N)
+    np.random.shuffle(index)
+    
+    ind_tr = index[:size_tr]
+    ind_te= np.setdiff1d(index, ind_tr)   
+    
+    x_train = x[ind_tr]
+    y_train = y[ind_tr]
+    x_test = x[ind_te]
+    y_test = y[ind_te]
+    
+    return x_train, x_test, y_train, y_test
+
+
+def build_k_indices(y, k_fold, seed):
+    """build k indices for k-fold."""
+    num_row = y.shape[0]
+    interval = int(num_row / k_fold)
+    np.random.seed(seed)
+    indices = np.random.permutation(num_row)
+    k_indices = [indices[k * interval: (k + 1) * interval]
+                 for k in range(k_fold)]
+    return np.array(k_indices)
+
+def build_poly(x, degree):
+    """
+    polynomial basis functions for input data x, for j=0 up to j=degree.
+    INPUTS: x := the matrix
+    OUTPUTS: the matrix with a new column for each degree and for each column of the old dataset
+    """
+    d = np.arange(1, degree+1).repeat(x.shape[1])
+    psi = np.tile(x, degree)
+    psi = np.power(psi, d)
+    return psi
+
+
+# RUN HELPERS FUNCTION
+
 def preprocessing(tX, y=[]):
     """
     This function executes the various steps for the cleaning and preparation of the dataset Higgs' Boson.
     INPUTS: X
-            y (not mandatory)
-            test := is a boolean, False if the dataset is the training.
+            y (not mandatory): if present prduce test samples, if not doesn't build a y
 
     
-    if test == FALSE:
+    if len(y)!=0 (train set):
     OUTPUTS:y_new
             tX_pds
             ids_new
             means 
             stds
     
-    if test == TRUE
+    if len(y)==0 (test set):
     OUTPUTS:x_train 
             x_test 
             y_train 
@@ -113,12 +185,6 @@ def preprocessing(tX, y=[]):
     else:
         return tX_pds, ids_new, means, stds
     
-def y_for_logistic(y):
-    """
-    this function changes the -1 in 0 in the y vector to use it in the logistic regression
-    """
-    y_new = np.where(y==-1, 0, y)
-    return y_new
 
 def build_predictions(tX, indexes, w, degrees=[], logistic=False):
     """
@@ -148,65 +214,8 @@ def build_predictions(tX, indexes, w, degrees=[], logistic=False):
 
     return y_pred
 
-def accuracy(y_real, y_pred):
-    """
-    compute the accuracy: percentage of correct predictions over the total number of predictions
-    INPUTS: y_real := the y vector of true labels
-            y_pred := the y vector of the predicted labels
-    OUTPUTS: accuracy
-    """
-    N = len(y_real)
-    if N!=len(y_pred):
-        raise Exception('y_pred length wrong')
-    correct = np.sum(y_real==y_pred)
-    return correct/N
-        
-
-def split_data(y, x, ratio, seed=1):
-    """
-    split the dataset based on the split ratio. If ratio is 0.8 
-    you will have 80% of your data set dedicated to training 
-    and the rest dedicated to testing
-    """
-    # set seed
-    np.random.seed(seed)
-    N = x.shape[0]
-    
-    size_tr = round(N* ratio)
-    index = np.arange(N)
-    np.random.shuffle(index)
-    
-    ind_tr = index[:size_tr]
-    ind_te= np.setdiff1d(index, ind_tr)   
-    
-    x_train = x[ind_tr]
-    y_train = y[ind_tr]
-    x_test = x[ind_te]
-    y_test = y[ind_te]
-    
-    return x_train, x_test, y_train, y_test
 
 
-def build_k_indices(y, k_fold, seed):
-    """build k indices for k-fold."""
-    num_row = y.shape[0]
-    interval = int(num_row / k_fold)
-    np.random.seed(seed)
-    indices = np.random.permutation(num_row)
-    k_indices = [indices[k * interval: (k + 1) * interval]
-                 for k in range(k_fold)]
-    return np.array(k_indices)
-
-def build_poly(x, degree):
-    """
-    polynomial basis functions for input data x, for j=0 up to j=degree.
-    INPUTS: x := the matrix
-    OUTPUTS: the matrix with a new column for each degree and for each column of the old dataset
-    """
-    d = np.arange(1, degree+1).repeat(x.shape[1])
-    psi = np.tile(x, degree)
-    psi = np.power(psi, d)
-    return psi
 
 def compute_rmse_ridge(y, tx, w, lambda_):
     l = compute_loss(y, tx, w)
@@ -274,7 +283,7 @@ def select_best_hypers_ridge(y, tX, max_degree, k_fold, min_lambda_pow, max_lamb
     return degrees_star, lambdas_star
     
 
-#already given function
+#PROJ1 HELPERS WITH SMALL MODIFICATIONS TO ADAPT TO OUR CASE
 
 def load_csv_data(data_path, sub_sample=False):
     """Loads data and returns y (class labels), tX (features) and ids (event ids)"""
@@ -318,7 +327,7 @@ def create_csv_submission(ids, y_pred, name, logistic=False):
                y_pred (predicted class labels)
                name (string name of .csv output file to be created)
     """
-    if (logistic==True):
+    if (logistic==True): #build logistic submission
         y_pred = np.where(y_pred==0, -1, y_pred)
     
     with open(name, 'w') as csvfile:

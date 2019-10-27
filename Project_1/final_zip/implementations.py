@@ -3,7 +3,6 @@
 """
 
 import numpy as np
-from helpers import *
 from implementation_helpers import*
 
 
@@ -86,16 +85,16 @@ def least_squares_SGD(y, tx, initial_w, max_iters, gamma):
     for n_iter in range(max_iters):
         
         # we pick randmly one datapoint
-        # batch_inter is in my_helpers.py
+        # batch_inter 
         for yn, xn in batch_iter(y, tx, batch_size):
             
-            # compute_gradient is in my_helpers.py
+            # compute_gradient
             g = compute_gradient(yn, xn, w)
         
         # we upgrade w by the stochastic gradient
         w = w - gamma*g
         
-        # compute_loss is in cost.py
+        # compute_loss 
         loss = compute_loss(y, tx, w)
         
         # store w and loss
