@@ -29,7 +29,7 @@ Detecting the Higgs Boson. Project about binary classification on a data-set whi
   
 ### Folder content
 
-* `run.py` - this .py is used to run the pipeline of the model used to achieve the prediction in AICROWD. It uses Ridge Regression with  optimal lambdas and degrees. 
+* `run.py` - This .py is used to run the pipeline of the model used to achieve the prediction in AICROWD. It uses Ridge Regression with  optimal lambdas and degrees. 
 * `helpers.py` - Helpers functions: this .py includes generic helpers from labs, helpers for the run.py (preprocessing, cross validation...) and specific helpers for the project (e.g. load_csv(..))
 * `implementations.py` - Implementations of the 6 mandatory algorithms.
 * `implementations_helpers.py` - Helper functions for the algorithms in implementations.py
