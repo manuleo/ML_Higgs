@@ -41,23 +41,23 @@ The implementation of the base methods consists of six well known Machine Learni
 \begin{table}[h!]
 \resizebox{\columnwidth}{!}{%
 \centering
-\begin{tabular}{|l|c|c|c|l|l|l|} 
+\begin{tabular}{|l|l|l|l|l|l|} 
 \cline{2-5}
-\multicolumn{1}{l|}{}    & \multicolumn{4}{l|}{Hyperparameters Used} & \multicolumn{1}{l}{}  & \multicolumn{1}{l}{}\\ 
+\multicolumn{1}{l|}{}    & \multicolumn{4}{l|}{Hyperparameters Used} & \multicolumn{1}{l}{}  \\ 
 \hline
-Methods                  & $\lambda$ & $\gamma$ & Degree & Max Iter      & \shortstack{Accuracy \\(\textit{20\% test})}  & \shortstack{Accuracy \\(\textit{AIcrowd})} \\ 
+Methods                  & $\lambda$ & $\gamma$ & Degree & Max Iter      & Acc. \\ 
 \hline
-Gradient Descent         & /      & $10^{-6}$ &   1     &   2000         &  0.718   & 0.413\\ 
+Gradient Descent         & /      & $10^{-6}$ &   1     &   2000         &  0.718   \\ 
 \cline{1-1}
-Stochastic GD            & /      & $10^{-7}$ & 1      & 1000         & 0.704   & 0.412 \\ 
+Stochastic GD            & /      & $10^{-7}$ & 1      & 1000         & 0.704    \\ 
 \cline{1-1}
-Least Squares            & /      &  /      & 1      & /              & 0.741  & 0.705 \\ 
+Least Squares            & /      &  /      & 1      & /              & 0.741   \\ 
 \cline{1-1}
-Ridge Regression         & $10^{-8}$ &  /      & 5      & /              &   0.724   & 0.736\\ 
+Ridge Regression         & $10^{-8}$ &  /      & 6      & /              &   0.766   \\ 
 \cline{1-1}
-Logistic Regression      & /      &  $10^{-10}$      & 1      & 10000           &   0.736  & 0.414 \\ 
+Logistic Regression      & /      &  $10^{-10}$      & 1      & 10000           &   0.735   \\ 
 \cline{1-1}
-Reg. Logistic Regression &  $10^{-8}$    &   $10^{-10}$      & 1      & 10000           &            0.736       & 0.414    \\
+Reg. Logistic Regression &  $10^{-8}$    &   $10^{-10}$      & 1      & 10000           &            0.735           \\
 \hline
 \end{tabular}%
 }
@@ -166,7 +166,7 @@ From the theory we expected the results of Regularized Logistic Regression to be
 
 Overall, we can would conclude we are sufficiently satisfied of the results we achieved with our implementation, in particular if we consider that we just used basic machine learning tools. Anyway improving the accuracy is possible, but it would require extra time both in data analysis and hyper-parameters tuning. 
 
-We learnt how preprocessing is crucial when dealing with Machine Learning implementation. We could have increased the goodness of the result by using optimal methods to clean our dataset or by adding important features, as example by performing cross-terms expansions. We also think that the presence of an expert in the topics we were dealing with would be helpful too. It this way we could have performed a better selection of the features based on deeper and insightful knowledge. It is also true that the implementation of more advanced methods such as Neural Networks or Random Forests would have helped us in reaching higher values of accuracy.
+We learnt how preprocessing is crucial when dealing with Machine Learning implementation. We could have increased the goodness of the result by using optimal methods to clean our dataset or by adding important features, as example by performing cross-terms expansions. We also think that the presence of an expert in the topics we were dealing with would be helpful too. It this way we could have performed a better selection of the features based on deeper and insightful knowledge. It is also true, that the implementation of more advanced methods such as Neural Network or random forests would have helped us in reaching higher values of accuracy.
 
 
 \bibliographystyle{IEEEtran}
