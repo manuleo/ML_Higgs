@@ -34,10 +34,8 @@ def least_squares_GD(y, tx, initial_w, max_iters, gamma):
     
     for n_iter in range(max_iters):
         
-        # compute_grandient and compute_loss are in my_helpers.py
+        # compute_grandient and compute_loss 
         g = compute_gradient(y, tx, w)
-        
-        # compute_loss is in cost.py
         loss = compute_loss(y, tx, w)
         
         # we upgrade w
@@ -146,7 +144,7 @@ def ridge_regression(y, tx, lambda_):
 
 def logistic_regression(y, x, initial_w, max_iters, gamma):
     """
-    Logistic regression via stochastic gradient descent
+    Logistic regression via gradient descent
     INPUTS:
             y
             X
@@ -185,7 +183,7 @@ def logistic_regression(y, x, initial_w, max_iters, gamma):
 
 def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     """
-    Regularized logistic regression via stochastic gradient descent
+    Regularized logistic regression via gradient descent
     INPUTS:
             y
             X
