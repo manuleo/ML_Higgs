@@ -256,19 +256,14 @@ def load_csv_data(data_path, sub_sample=False):
 def predict_labels(weights, data, logistic=False):
     """Generates predictions given weights, and a test data matrix for classification with least squares or logistic regression"""
     if logistic:
-        
+        y_pred = sigmoid(np.dot(data, weights))
+        y_pred[np.where(y_pred <= 0.5)] = 0
+        y_pred[np.where(y_pred > 0.5)] = 1    
     else:
         y_pred = np.dot(data, weights)
         y_pred[np.where(y_pred <= 0)] = -1
         y_pred[np.where(y_pred > 0)] = 1
         
-    return y_pred
-
-def predict_labels_logistic(weights, data):
-    """Generates class predictions given weights, and a test data matrix"""
-    y_pred = sigmoid(np.dot(data, weights))
-    y_pred[np.where(y_pred <= 0.5)] = 0
-    y_pred[np.where(y_pred > 0.5)] = 1
     return y_pred
 
 
