@@ -89,7 +89,7 @@ def least_squares_SGD(y, tx, initial_w, max_iters, gamma):
         for yn, xn in batch_iter(y, tx, batch_size):
             
             # compute_stoch_gradient is in my_helpers.py
-            g = compute_stoch_gradient(yn, xn, w)
+            g = compute_gradient(yn, xn, w)
         
         # we upgrade w by the stochastic gradient
         w = w - gamma*g
@@ -144,7 +144,7 @@ def ridge_regression(y, tx, lambda_):
 
 # LOGISTIC REGRESSION
 
-def logistic_regression(y, x, initial_w, max_iters, gamma):
+def logistic_regression(y, tx, initial_w, max_iters, gamma):
     """
     Logistic regression via stochastic gradient descent
     INPUTS:
@@ -167,7 +167,7 @@ def logistic_regression(y, x, initial_w, max_iters, gamma):
     losses = []
 
     # start the logistic regression
-    for iter in range(max_iter):
+    for iter in range(max_iters):
         # get loss and update w.
         for yn, xn in batch_iter(y, tx, 1):
             loss, w = learning_by_gradient_descent(yn, xn, w, gamma)
@@ -208,7 +208,7 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     # w = np.ones((tx.shape[1],))
 
     # start the logistic regression
-    for iter in range(max_iter):
+    for iter in range(max_iters):
         # get loss and update w.
         for yn, xn in batch_iter(y, tx, 1):
             loss, w = learning_by_penalized_gradient(yn, xn, w, gamma, lambda_)
