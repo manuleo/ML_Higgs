@@ -14,3 +14,4 @@ def ridge_regression(y, tx, lambda_):
     i = np.linalg.inv(G + 2*N*lambda_*np.eye(G.shape[0]))
     w_star = i.dot(tx.T).dot(y)
     return w_star
+

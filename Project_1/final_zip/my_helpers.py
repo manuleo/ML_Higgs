@@ -2,8 +2,6 @@
 """my helper functions."""
 import numpy as np
 import pandas as pd
-from lab_helpers import *
-from proj1_helpers import *
 
 def preprocessing(y, tX, test=False):
     index = np.array(range(0,tX.shape[0])).reshape((tX.shape[0],1))
@@ -11,7 +9,6 @@ def preprocessing(y, tX, test=False):
     tX_pds1 = []
     for jet in range(0, 4):
         tX_pds1.append(tX[tX[:,22] == jet])
-    
     
     #dropping
     # we drop the column 22 in each "jet"
@@ -32,7 +29,7 @@ def preprocessing(y, tX, test=False):
     
     for jet in range(0, 8):
         if (jet%2==0):
-            tX_pds[jet].drop(drop_0, axis=1, inplace=True)
+            tX_pds[jet] = np.delete(tX_pds[jet],0,1)
             
     
     #for jet in range(0, 4):
@@ -49,12 +46,8 @@ def preprocessing(y, tX, test=False):
     for jet in range(0, 8):
         ids_new.append(tX_pds[jet][:,tX_pds[jet].shape[1]-1].astype(int))
         
-    #standardize
-    means, stds = [], []
-    for jet in range (0, 8):
-        tX_new[jet], mean, std = standardize(tX_new[jet])
-        means.append(mean)
-        stds.append(std)
+    for jet in range(0,8):
+        tX_pds[jet] = np.delete(tX_pds[jet],tX_pds[jet].shape[1]-1,1)
     
     #new 1s column
     for jet in range(0,8):
