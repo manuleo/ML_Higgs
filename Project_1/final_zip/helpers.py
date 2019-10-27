@@ -1,19 +1,36 @@
 # -*- coding: utf-8 -*-
-"""my helper functions."""
 import numpy as np
 import pandas as pd
-from lab_helpers import *
-from proj1_helpers import *
 
-def preprocessing(y, tX, test=False):
+def preprocessing(tX, test=False, y=np.array([])):
+    """
+    This function executes the various steps for the cleaning and preparation of the dataset Higgs' Boson.
+    INPUTS: X
+            y (not mandatory)
+            test := is a boolean, False if the dataset is the training.
+
+    
+    if test == FALSE:
+    OUTPUTS:y_new
+            tX_pds
+            ids_new
+            means 
+            stds
+    
+    if test == TRUE
+    OUTPUTS:x_train 
+            x_test 
+            y_train 
+            y_test
+
+    """
     index = np.array(range(0,tX.shape[0])).reshape((tX.shape[0],1))
     tX = np.append(tX, index, axis=1)
     tX_pds1 = []
     for jet in range(0, 4):
         tX_pds1.append(tX[tX[:,22] == jet])
     
-    
-    #dropping
+    # dropping
     # we drop the column 22 in each "jet"
     for jet in range(0, 4):
         tX_pds1[jet] = np.delete(tX_pds1[jet],22,1)
@@ -32,7 +49,7 @@ def preprocessing(y, tX, test=False):
     
     for jet in range(0, 8):
         if (jet%2==0):
-            tX_pds[jet].drop(drop_0, axis=1, inplace=True)
+            tX_pds[jet] = np.delete(tX_pds[jet],0,1)
             
     
     #for jet in range(0, 4):
@@ -49,12 +66,8 @@ def preprocessing(y, tX, test=False):
     for jet in range(0, 8):
         ids_new.append(tX_pds[jet][:,tX_pds[jet].shape[1]-1].astype(int))
         
-    #standardize
-    means, stds = [], []
-    for jet in range (0, 8):
-        tX_new[jet], mean, std = standardize(tX_new[jet])
-        means.append(mean)
-        stds.append(std)
+    for jet in range(0,8):
+        tX_pds[jet] = np.delete(tX_pds[jet],tX_pds[jet].shape[1]-1,1)
     
     #new 1s column
     for jet in range(0,8):
@@ -102,10 +115,21 @@ def preprocessing(y, tX, test=False):
         return tX_pds, ids_new, means, stds
     
 def y_for_logistic(y):
+    """
+    this function changes the -1 in 0 in the y vector to use it in the logistic regression
+    """
     y_new = np.where(y==-1, 0, y)
     return y_new
 
 def build_predictions(tX, indexes, w, degrees=[], logistic=False):
+    """
+    build the predictions for a given dataset
+    INPUTS: X
+            indexes := indexes for the association (from the preprocessing, useful to assign the data to the right jet)
+            w
+            degrees := list of polynomial degree per jet
+
+    """
     N = 0
     for jet in range(0, 8):
         N += tX[jet].shape[0]
@@ -126,6 +150,12 @@ def build_predictions(tX, indexes, w, degrees=[], logistic=False):
     return y_pred
 
 def accuracy(y_real, y_pred):
+    """
+    compute the accuracy: percentage of correct predictions over the total number of predictions
+    INPUTS: y_real := the y vector of true labels
+            y_pred := the y vector of the predicted labels
+    OUTPUTS: accuracy
+    """
     N = len(y_real)
     if N!=len(y_pred):
         raise Exception('y_pred length wrong')
@@ -157,14 +187,16 @@ def split_data(y, x, ratio, seed=1):
     
     return x_train, x_test, y_train, y_test
 
-def build_poly(x, degree):
-    """polynomial basis functions for input data x, for j=0 up to j=degree."""
-    d = np.arange(1, degree+1).repeat(x.shape[1])
-    psi = np.tile(x, degree)
-    psi = np.power(psi, d)
-    return psi
+
 
 def get_subsample(y, x, sub_size, seed=1):
+    """
+    this function gives a subsample for a given y and a given x
+    INPUTS: y
+            x
+            sub_size := the size of the subsample
+            seed := seed for reproducibility
+    """
     np.random.seed(seed)
     indexes = np.arange(x.shape[0])
     np.random.shuffle(indexes)  
@@ -174,14 +206,85 @@ def get_subsample(y, x, sub_size, seed=1):
     return y_sub, x_sub
 
 
-def compute_gradient(y, tx, w):
-    """Compute the gradient."""
-    e=y-tx.dot(w)
-    N=len(y)
-    return -(np.transpose(tx).dot(e))/N
 
-def compute_stoch_gradient(y, tx, w):
-    """Compute a stochastic gradient from just few examples n and their corresponding y_n labels."""
-    e=y-tx.dot(w)
-    N=len(y)
-    return -(np.transpose(tx).dot(e))/N
+
+# -*- coding: utf-8 -*-
+"""some practical helper functions for project 1."""
+import csv
+import numpy as np
+
+
+def load_csv_data(data_path, sub_sample=False):
+    """Loads data and returns y (class labels), tX (features) and ids (event ids)"""
+    y = np.genfromtxt(data_path, delimiter=",", skip_header=1, dtype=str, usecols=1)
+    x = np.genfromtxt(data_path, delimiter=",", skip_header=1)
+    ids = x[:, 0].astype(np.int)
+    input_data = x[:, 2:]
+
+    # convert class labels from strings to binary (-1,1)
+    yb = np.ones(len(y))
+    yb[np.where(y=='b')] = -1
+    
+    # sub-sample
+    if sub_sample:
+        yb = yb[::50]
+        input_data = input_data[::50]
+        ids = ids[::50]
+
+    return yb, input_data, ids
+
+# def load_csv_data_logistic(data_path, sub_sample=False):
+#     """Loads data and returns y (class labels), tX (features) and ids (event ids)"""
+#     y = np.genfromtxt(data_path, delimiter=",", skip_header=1, dtype=str, usecols=1)
+#     x = np.genfromtxt(data_path, delimiter=",", skip_header=1)
+#     ids = x[:, 0].astype(np.int)
+#     input_data = x[:, 2:]
+
+#     # convert class labels from strings to binary (-1,1)
+#     yb = np.ones(len(y))
+#     yb[np.where(y=='b')] = 0
+    
+#     # sub-sample
+#     if sub_sample:
+#         yb = yb[::50]
+#         input_data = input_data[::50]
+#         ids = ids[::50]
+
+#     return yb, input_data, ids
+
+
+def predict_labels(weights, data, logistic=False):
+    """Generates predictions given weights, and a test data matrix for classification with least squares or logistic regression"""
+    if logistic:
+        
+    else:
+        y_pred = np.dot(data, weights)
+        y_pred[np.where(y_pred <= 0)] = -1
+        y_pred[np.where(y_pred > 0)] = 1
+        
+    return y_pred
+
+def predict_labels_logistic(weights, data):
+    """Generates class predictions given weights, and a test data matrix"""
+    y_pred = sigmoid(np.dot(data, weights))
+    y_pred[np.where(y_pred <= 0.5)] = 0
+    y_pred[np.where(y_pred > 0.5)] = 1
+    return y_pred
+
+
+def create_csv_submission(ids, y_pred, name, logistic=False):
+    """
+    Creates an output file in csv format for submission to kaggle
+    Arguments: ids (event ids associated with each prediction)
+               y_pred (predicted class labels)
+               name (string name of .csv output file to be created)
+    """
+    if (logistic==True):
+        y_pred = np.where(y_pred==0, -1, y_pred)
+    
+    with open(name, 'w') as csvfile:
+        fieldnames = ['Id', 'Prediction']
+        writer = csv.DictWriter(csvfile, delimiter=",", fieldnames=fieldnames, dialect='unix')
+        writer.writeheader()
+        for r1, r2 in zip(ids, y_pred):
+            writer.writerow({'Id':int(r1),'Prediction':int(r2)})
