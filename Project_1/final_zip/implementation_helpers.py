@@ -99,6 +99,10 @@ def compute_gradient(y, tx, w):
     return -(np.transpose(tx).dot(e))/N
 
 def log1p_no_of(x):
+    """
+    function which approximates ln(1+e^x) to x, just to avoid overflow 
+    if e^x is not computable in finite precision
+    """
     return np.where(x>700, x, np.log1p(np.exp(x)))
 
 
