@@ -142,7 +142,7 @@ def ridge_regression(y, tx, lambda_):
 
 # LOGISTIC REGRESSION
 
-def logistic_regression(y, x, initial_w, max_iters, gamma):
+def logistic_regression(y, tx, initial_w, max_iters, gamma):
     """
     Logistic regression via gradient descent
     INPUTS:
@@ -168,15 +168,17 @@ def logistic_regression(y, x, initial_w, max_iters, gamma):
     # start the logistic regression
     for iter in range(max_iters):
         # get loss and update w.
-        w, loss = learning_by_gradient_descent(y, x, w, gamma)
+        w, loss = learning_by_gradient_descent(y, tx, w, gamma)
+        
         # log info
         if iter % (max_iters/10)  == 0:
             print("Current iteration={i}, loss={l}".format(i=iter, l=loss))
+            
         # converge criterion
         losses.append(loss)
         if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
             break
-    #print("loss={l}".format(l=calculate_loss(y, tx, w)))
+    
     return w, loss
 
 # REGULARIZED LOGISTIC REGRESSION
@@ -210,8 +212,8 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
         # get loss and update w.
         w, loss = learning_by_penalized_gradient(y, tx, w, gamma, lambda_)
         # log info
-        #if iter % (max_iters/10) == 0:
-            #print("Current iteration={i}, loss={l}".format(i=iter, l=loss))
+        if iter % (max_iters/10) == 0:
+            print("Current iteration={i}, loss={l}".format(i=iter, l=loss))
         # converge criterion
         losses.append(loss)
         if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:

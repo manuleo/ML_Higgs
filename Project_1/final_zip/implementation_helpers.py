@@ -140,9 +140,9 @@ def learning_by_gradient_descent(y, tx, w, gamma):
     OUTPUTS:w
             loss
     """
-    loss = calculate_loss(y, tx, w)
     grad = calculate_gradient(y, tx, w)
     w = w - gamma * grad
+    loss = calculate_loss(y, tx, w)
     return w, loss
 
 
@@ -177,5 +177,7 @@ def learning_by_penalized_gradient(y, tx, w, gamma, lambda_):
     #loss, gradient, hessian = penalized_logistic_regression(y, tx, w, lambda_)
     loss, gradient = penalized_logistic_regression(y, tx, w, lambda_)
     w = w - gamma * gradient
+    loss, _ = penalized_logistic_regression(y, tx, w, lambda_)
+
     return w, loss
 

@@ -1,8 +1,11 @@
 from helpers import *
 from implementations import ridge_regression
 import numpy as np
+import argparse
 
-def main():
+
+def main(cross):
+    
     # original data loading
     print("Loading training dataset....")
     DATA_TRAIN_PATH = 'train.csv'
@@ -23,8 +26,11 @@ def main():
     lambdas_star = [2.8117686979742307e-08, 1.757510624854793e-08, 3.088843596477485e-06, 2.94705170255181e-07, 1e-10, 1e-10, 1.67683293681101e-09, 1.0481131341546874e-09]
 
     # compute parameters by using cross validation on train set
-    # !NOTE: this function is commented because it needs more than 1 hour to run: the resulting parameters are hard coded for simplicity (uncomment if you wan to run it)
-    #degrees_star, lambdas_star = select_best_hypers_ridge(y_tr, tX_tr, max_degree = 9, k_fold = 12, min_lambda_pow = -10, max_lambda_pow = 0)
+    # !NOTE: this function needs more than 1 hour to run: the resulting parameters are hard coded for simplicity
+    if (cross):
+        print ("Starting cross validation...")
+        degrees_star, lambdas_star = select_best_hypers_ridge(y_tr, tX_tr, max_degree = 9, k_fold = 12, min_lambda_pow = -10, max_lambda_pow = 0)
+        print ("Cross validation ended! Hyper-parameters tuned")
     
     print("Computing best w...")
     #computing w with tuned hyper-parameters
@@ -58,4 +64,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-cross', action='store_true')
+    args = parser.parse_args()
+    main(args.cross)

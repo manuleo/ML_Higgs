@@ -205,10 +205,7 @@ def build_predictions(tX, indexes, w, degrees=[], logistic=False):
             x = build_poly(tX[jet], degrees[jet])
         else:
             x = tX[jet]
-        if (logistic==False):
-            y_p = predict_labels(w[jet], x)
-        else:
-            y_p = predict_labels_logistic(w[jet], x)
+        y_p = predict_labels(w[jet], x, logistic)
         index = indexes[jet]
         y_pred[index] = y_p
 
