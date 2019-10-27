@@ -88,6 +88,14 @@ def compute_gradient(y, tx, w):
     return -(np.transpose(tx).dot(e))/N
 
 
+def log1p_no_of(x):
+    return np.where(x>700, x, np.log1p(np.exp(x)))
+#     if x > 700:
+#         return x
+#     else:
+#         return np.log1p(np.exp(x))
+
+
 def calculate_loss(y, tx, w):
     """
     compute the negative log likelihood for the logistic regression.
@@ -96,9 +104,10 @@ def calculate_loss(y, tx, w):
             w
     OUTPUTS: negative log likelihood
     """
-    N = tx.shape[0]
-    first = np.sum(np.log(1+np.exp(tx.dot(w))))
-    second = y.T.dot(tx.dot(w))
+    #print("xw={}, y={}, yxw ={}".format(tx.dot(w), y, y.T.dot(tx).dot(w)))
+    ln = log1p_no_of(tx.dot(w))
+    first = np.sum(ln)
+    second = y.T.dot(tx).dot(w)
     #print(first, second)
     return first - second
 
@@ -122,9 +131,10 @@ def learning_by_gradient_descent(y, tx, w, gamma):
     OUTPUTS:w
             loss
     """
+    loss = calculate_loss(y, tx, w)
     grad = calculate_gradient(y, tx, w)
     w = w - gamma * grad
-    loss = calculate_loss(y, tx, w)
+    #loss = calculate_loss(y, tx, w)
     return w, loss
 
 
