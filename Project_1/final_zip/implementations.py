@@ -165,19 +165,21 @@ def logistic_regression(y, x, initial_w, max_iters, gamma):
 
     # init parameters
     losses = []
+    w = initial_w
 
     # start the logistic regression
-    for iter in range(max_iter):
+    for iter in range(max_iters):
         # get loss and update w.
-        for yn, xn in batch_iter(y, tx, 1):
-            loss, w = learning_by_gradient_descent(yn, xn, w, gamma)
+        #for yn, xn in batch_iter(y, x, 1):
+        w, loss = learning_by_gradient_descent(y, x, w, gamma)
         # log info
         if iter % (max_iters/10) == 0:
             print("Current iteration={i}, loss={l}".format(i=iter, l=loss))
         # converge criterion
         losses.append(loss)
-        if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
-            break
+        #if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold and np.abs(losses[-1] - losses[-2])!=0:
+         #   print(losses[-1], losses[-2])
+          #  break
     #print("loss={l}".format(l=calculate_loss(y, tx, w)))
     return w, loss
 

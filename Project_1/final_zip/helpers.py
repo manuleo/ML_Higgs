@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import csv
-from implementation_helpers import standardize
+from implementation_helpers import standardize, compute_loss, sigmoid
+from implementations import ridge_regression
 
 def preprocessing(tX, y=[]):
     """
@@ -207,12 +208,16 @@ def build_poly(x, degree):
     psi = np.power(psi, d)
     return psi
 
+def compute_rmse_ridge(y, tx, w, lambda_):
+    l = compute_loss(y, tx, w)
+    l = l + lambda_ * np.linalg.norm(w)**2
+    return np.sqrt(2*l)
 
-def cross_validation(y, x, k_indices, k, lambda_, degree):
+
+def cross_validation_ridge(y, x, k_indices, k, lambda_, degree):
     """return the loss of ridge regression."""
     losses_tr = []
     losses_te = []
-    accuracies = []
     
     for k_group in range(k):
         
@@ -229,36 +234,41 @@ def cross_validation(y, x, k_indices, k, lambda_, degree):
         x_tr_poly = build_poly(x_tr, degree)
         
         # compute w with ridge regression
-        w = ridge_regression(y_tr, x_tr_poly, lambda_)
+        w, _ = ridge_regression(y_tr, x_tr_poly, lambda_)
         
         # calculate the loss for train and test data
-        rmse_tr = compute_rmse(y_tr, x_tr_poly, w)
-        rmse_te = compute_rmse(y_te, x_te_poly, w)
+        rmse_tr = compute_rmse_ridge(y_tr, x_tr_poly, w, lambda_)
+        rmse_te = compute_rmse_ridge(y_te, x_te_poly, w, lambda_)
         losses_tr.append(rmse_tr)
         losses_te.append(rmse_te)
         
-        #return losses average
-        loss_tr = np.mean(losses_tr)
-        loss_te = np.mean(losses_te)
-        return loss_tr, loss_te
+    #return losses average
+    loss_tr = np.mean(losses_tr)
+    loss_te = np.mean(losses_te)
+    return loss_tr, loss_te
     
 def select_best_hypers_ridge(y, tX, max_degree, k_fold, min_lambda_pow, max_lambda_pow, seed=1):
-    lambdas = np.logspace(min_lambda_pow, 0, max_lambda_pow)
-    k_indices = build_k_indices(y, k_fold, seed)
+    lambdas = np.logspace(min_lambda_pow, max_lambda_pow, 50)
     degrees_star = []
     lambdas_star = []
     for jet in range(0, 8):
+        print("jet: {}".format(jet))
         loss_min = np.inf
         degree_star = 0
         lambda_star = 0
+        k_indices = build_k_indices(y[jet], k_fold, seed)
         for degree in range(1, max_degree+1):
             for lambda_ in lambdas:
-                loss_tr, loss_te = cross_validation(y[jet], tX[jet], k_indices, k_fold, lambda_, degree)
+                loss_tr, loss_te = cross_validation_ridge(y[jet], tX[jet], k_indices, k_fold, lambda_, degree)
                 if loss_te < loss_min:
                     loss_min = loss_te
                     degree_star = degree
                     lambda_star = lambda_
-        print("Jet {}: best loss: {}, degree: {}, lambda: {}".format(jet, loss_min, degree_star, lambda_star))
+                    print("New loss: {}, degree: {}, lambda: {}".format(loss_te, degree, lambda_))
+        if (jet%2==0):
+            print("Jet {} no mass -> best loss: {}, degree: {}, lambda: {}".format(jet, loss_min, degree_star, lambda_star))
+        else:
+            print("Jet {} with mass -> best loss: {}, degree: {}, lambda: {}".format(jet-1, loss_min, degree_star, lambda_star))
         degrees_star.append(degree_star)
         lambdas_star.append(lambda_star)
     return degrees_star, lambdas_star
