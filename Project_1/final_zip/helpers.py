@@ -1,8 +1,10 @@
+"""General helpers function"""
 # -*- coding: utf-8 -*-
 import numpy as np
-import pandas as pd
+import csv
+from implementation_helpers import standardize
 
-def preprocessing(tX, test=False, y=np.array([])):
+def preprocessing(tX, y=[]):
     """
     This function executes the various steps for the cleaning and preparation of the dataset Higgs' Boson.
     INPUTS: X
@@ -34,7 +36,7 @@ def preprocessing(tX, test=False, y=np.array([])):
     # we drop the column 22 in each "jet"
     for jet in range(0, 4):
         tX_pds1[jet] = np.delete(tX_pds1[jet],22,1)
-    drops_0 = [4, 5, 6, 12, 22, 23, 24, 25, 26, 27, 28] # 29 all zeros
+    drops_0 = [4, 5, 6, 12, 22, 23, 24, 25, 26, 27, 28] # 29 (original): now 28 all zeros
     drops_1 = [4, 5, 6, 12, 25, 26, 27]
     tX_pds1[0] = np.delete(tX_pds1[0],drops_0,1)
     tX_pds1[1] = np.delete(tX_pds1[1],drops_1, axis=1)
@@ -51,13 +53,9 @@ def preprocessing(tX, test=False, y=np.array([])):
         if (jet%2==0):
             tX_pds[jet] = np.delete(tX_pds[jet],0,1)
             
-    
-    #for jet in range(0, 4):
-     #   tX_pd[jet].where(tX_pd[jet]!=-999, inplace=True)
-      #  tX_pd[jet].fillna(tX_pd[jet].median(), inplace=True)    
-    
+      
     #new datasets
-    if test==False:
+    if len(y)!=0:
         y_new = []
         for jet in range(0, 8):
             y_new.append(y[tX_pds[jet][:,tX_pds[jet].shape[1]-1].astype(int)])
@@ -109,7 +107,7 @@ def preprocessing(tX, test=False, y=np.array([])):
         means.append(mean)
         stds.append(std)
         
-    if test==False:
+    if len(y)!=0:
         return y_new, tX_pds, ids_new, means, stds
     else:
         return tX_pds, ids_new, means, stds
@@ -188,31 +186,85 @@ def split_data(y, x, ratio, seed=1):
     return x_train, x_test, y_train, y_test
 
 
-
-def get_subsample(y, x, sub_size, seed=1):
-    """
-    this function gives a subsample for a given y and a given x
-    INPUTS: y
-            x
-            sub_size := the size of the subsample
-            seed := seed for reproducibility
-    """
+def build_k_indices(y, k_fold, seed):
+    """build k indices for k-fold."""
+    num_row = y.shape[0]
+    interval = int(num_row / k_fold)
     np.random.seed(seed)
-    indexes = np.arange(x.shape[0])
-    np.random.shuffle(indexes)  
-    sub_index = indexes[:sub_size] 
-    x_sub = x[sub_index,:]
-    y_sub = y[sub_index]
-    return y_sub, x_sub
+    indices = np.random.permutation(num_row)
+    k_indices = [indices[k * interval: (k + 1) * interval]
+                 for k in range(k_fold)]
+    return np.array(k_indices)
+
+def build_poly(x, degree):
+    """
+    polynomial basis functions for input data x, for j=0 up to j=degree.
+    INPUTS: x := the matrix
+    OUTPUTS: the matrix with a new column for each degree and for each column of the old dataset
+    """
+    d = np.arange(1, degree+1).repeat(x.shape[1])
+    psi = np.tile(x, degree)
+    psi = np.power(psi, d)
+    return psi
 
 
+def cross_validation(y, x, k_indices, k, lambda_, degree):
+    """return the loss of ridge regression."""
+    losses_tr = []
+    losses_te = []
+    accuracies = []
+    
+    for k_group in range(k):
+        
+        # divide in test and train set: 1 set for test all the others for train
+        index_te = k_indices[k_group]
+        index_tr = np.setdiff1d(np.arange(len(y)), index_te)
+        x_te = x[index_te]
+        x_tr = x[index_tr]
+        y_te = y[index_te]
+        y_tr = y[index_tr]
+        
+        # form data with polynomial degree
+        x_te_poly = build_poly(x_te, degree)
+        x_tr_poly = build_poly(x_tr, degree)
+        
+        # compute w with ridge regression
+        w = ridge_regression(y_tr, x_tr_poly, lambda_)
+        
+        # calculate the loss for train and test data
+        rmse_tr = compute_rmse(y_tr, x_tr_poly, w)
+        rmse_te = compute_rmse(y_te, x_te_poly, w)
+        losses_tr.append(rmse_tr)
+        losses_te.append(rmse_te)
+        
+        #return losses average
+        loss_tr = np.mean(losses_tr)
+        loss_te = np.mean(losses_te)
+        return loss_tr, loss_te
+    
+def select_best_hypers_ridge(y, tX, max_degree, k_fold, min_lambda_pow, max_lambda_pow, seed=1):
+    lambdas = np.logspace(min_lambda_pow, 0, max_lambda_pow)
+    k_indices = build_k_indices(y, k_fold, seed)
+    degrees_star = []
+    lambdas_star = []
+    for jet in range(0, 8):
+        loss_min = np.inf
+        degree_star = 0
+        lambda_star = 0
+        for degree in range(1, max_degree+1):
+            for lambda_ in lambdas:
+                loss_tr, loss_te = cross_validation(y[jet], tX[jet], k_indices, k_fold, lambda_, degree)
+                if loss_te < loss_min:
+                    loss_min = loss_te
+                    degree_star = degree
+                    lambda_star = lambda_
+        print("Jet {}: best loss: {}, degree: {}, lambda: {}".format(jet, loss_min, degree_star, lambda_star))
+        degrees_star.append(degree_star)
+        lambdas_star.append(lambda_star)
+    return degrees_star, lambdas_star
+    
 
-
-# -*- coding: utf-8 -*-
-"""some practical helper functions for project 1."""
-import csv
-import numpy as np
-
+#already given function
 
 def load_csv_data(data_path, sub_sample=False):
     """Loads data and returns y (class labels), tX (features) and ids (event ids)"""
@@ -233,24 +285,6 @@ def load_csv_data(data_path, sub_sample=False):
 
     return yb, input_data, ids
 
-# def load_csv_data_logistic(data_path, sub_sample=False):
-#     """Loads data and returns y (class labels), tX (features) and ids (event ids)"""
-#     y = np.genfromtxt(data_path, delimiter=",", skip_header=1, dtype=str, usecols=1)
-#     x = np.genfromtxt(data_path, delimiter=",", skip_header=1)
-#     ids = x[:, 0].astype(np.int)
-#     input_data = x[:, 2:]
-
-#     # convert class labels from strings to binary (-1,1)
-#     yb = np.ones(len(y))
-#     yb[np.where(y=='b')] = 0
-    
-#     # sub-sample
-#     if sub_sample:
-#         yb = yb[::50]
-#         input_data = input_data[::50]
-#         ids = ids[::50]
-
-#     return yb, input_data, ids
 
 
 def predict_labels(weights, data, logistic=False):

@@ -67,17 +67,6 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
 
 
 
-def build_k_indices(y, k_fold, seed):
-    """build k indices for k-fold."""
-    num_row = y.shape[0]
-    interval = int(num_row / k_fold)
-    np.random.seed(seed)
-    indices = np.random.permutation(num_row)
-    k_indices = [indices[k * interval: (k + 1) * interval]
-                 for k in range(k_fold)]
-    return np.array(k_indices)
-
-
 
 def sigmoid(t):
     """
@@ -98,16 +87,6 @@ def compute_gradient(y, tx, w):
     N=len(y)
     return -(np.transpose(tx).dot(e))/N
 
-def build_poly(x, degree):
-    """
-    polynomial basis functions for input data x, for j=0 up to j=degree.
-    INPUTS: x := the matrix
-    OUTPUTS: the matrix with a new column for each degree and for each column of the old dataset
-    """
-    d = np.arange(1, degree+1).repeat(x.shape[1])
-    psi = np.tile(x, degree)
-    psi = np.power(psi, d)
-    return psi
 
 def calculate_loss(y, tx, w):
     """
@@ -148,15 +127,6 @@ def learning_by_gradient_descent(y, tx, w, gamma):
     loss = calculate_loss(y, tx, w)
     return w, loss
 
-def logistic_regression(y, tx, w):
-    """return the loss and the gradient for the logistic regression.
-    INPUTS: y
-            X
-            w
-    OUTPUTS: loss,
-             gradient
-    """
-    return calculate_loss(y, tx, w), calculate_gradient(y, tx, w)
 
 def penalized_logistic_regression(y, tx, w, lambda_):
     """return the loss and the gradient for the regularized logistic regression
@@ -169,7 +139,7 @@ def penalized_logistic_regression(y, tx, w, lambda_):
     """
     N = tx.shape[0]
     D = tx.shape[1]
-    loss = calculate_loss(y, tx, w) + lambda_ / 2 * np.linalg.norm(w)
+    loss = calculate_loss(y, tx, w) + (lambda_ / 2) * np.linalg.norm(w)**2
     gradient = calculate_gradient(y, tx, w) + lambda_ * w
     
     return loss, gradient

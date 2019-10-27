@@ -4,6 +4,7 @@
 
 import numpy as np
 from helpers import *
+from implementation_helpers import *
 
 
 # LEAST SQUARES SGD
@@ -138,6 +139,7 @@ def ridge_regression(y, tx, lambda_):
     G = tx.T.dot(tx)
     i = np.linalg.inv(G + 2*N*lambda_*np.eye(G.shape[0]))
     w_star = i.dot(tx.T).dot(y)
+    loss = compute_loss(y, tx, w_star) + lambda_ * np.linalg.norm(w_star)**2
     return w_star, loss
 
 # LOGISTIC REGRESSION
@@ -170,7 +172,7 @@ def logistic_regression(y, x, initial_w, max_iters, gamma):
         for yn, xn in batch_iter(y, tx, 1):
             loss, w = learning_by_gradient_descent(yn, xn, w, gamma)
         # log info
-        if iter % 100 == 0:
+        if iter % (max_iters/10) == 0:
             print("Current iteration={i}, loss={l}".format(i=iter, l=loss))
         # converge criterion
         losses.append(loss)
@@ -181,7 +183,7 @@ def logistic_regression(y, x, initial_w, max_iters, gamma):
 
 # REGULARIZED LOGISTIC REGRESSION
 
-def reg_logistic_regression(y, tx, lambda_, initial_w, max_iter, gamma):
+def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     """
     Regularized logistic regression via stochastic gradient descent
     INPUTS:
@@ -211,7 +213,7 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iter, gamma):
         for yn, xn in batch_iter(y, tx, 1):
             loss, w = learning_by_penalized_gradient(yn, xn, w, gamma, lambda_)
         # log info
-        if iter % (max_iter/10) == 0:
+        if iter % (max_iters/10) == 0:
             print("Current iteration={i}, loss={l}".format(i=iter, l=loss))
         # converge criterion
         losses.append(loss)
