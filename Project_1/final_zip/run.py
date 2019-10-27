@@ -19,8 +19,8 @@ def main():
     print("Preprocessing done.")
 
     #hardcoded parameter from ridge regression
-    degrees_star = [7, 8, 5, 8, 5, 8, 2, 8]
-    lambdas_star = [2.395026619987491e-09, 1e-10, 4.893900918477499e-10, 5.298316906283702e-09, 1e-10, 1e-10, 1e-10, 4.893900918477499e-10]
+    degrees_star = [7, 5, 5, 9, 6, 9, 5, 8]
+    lambdas_star = [2.8117686979742307e-08, 1.757510624854793e-08, 3.088843596477485e-06, 2.94705170255181e-07, 1e-10, 1e-10, 1.67683293681101e-09, 1.0481131341546874e-09]
 
     # compute parameters by using cross validation on train set
     # !NOTE: this function is commented because it needs more than 1 hour to run: the resulting parameters are hard coded for simplicity (uncomment if you wan to run it)

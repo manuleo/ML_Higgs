@@ -177,9 +177,8 @@ def logistic_regression(y, x, initial_w, max_iters, gamma):
             print("Current iteration={i}, loss={l}".format(i=iter, l=loss))
         # converge criterion
         losses.append(loss)
-        #if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold and np.abs(losses[-1] - losses[-2])!=0:
-         #   print(losses[-1], losses[-2])
-          #  break
+        if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
+              break
     #print("loss={l}".format(l=calculate_loss(y, tx, w)))
     return w, loss
 
@@ -207,16 +206,15 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     # init parameters
     losses = []
 
-    # w = np.ones((tx.shape[1],))
+    w = initial_w
 
     # start the logistic regression
-    for iter in range(max_iter):
+    for iter in range(max_iters):
         # get loss and update w.
-        for yn, xn in batch_iter(y, tx, 1):
-            loss, w = learning_by_penalized_gradient(yn, xn, w, gamma, lambda_)
+        w, loss = learning_by_penalized_gradient(y, tx, w, gamma, lambda_)
         # log info
-        if iter % (max_iters/10) == 0:
-            print("Current iteration={i}, loss={l}".format(i=iter, l=loss))
+        #if iter % (max_iters/10) == 0:
+            #print("Current iteration={i}, loss={l}".format(i=iter, l=loss))
         # converge criterion
         losses.append(loss)
         if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:

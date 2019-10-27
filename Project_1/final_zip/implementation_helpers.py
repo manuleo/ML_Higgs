@@ -90,10 +90,6 @@ def compute_gradient(y, tx, w):
 
 def log1p_no_of(x):
     return np.where(x>700, x, np.log1p(np.exp(x)))
-#     if x > 700:
-#         return x
-#     else:
-#         return np.log1p(np.exp(x))
 
 
 def calculate_loss(y, tx, w):
