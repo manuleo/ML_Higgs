@@ -67,6 +67,17 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
 
 
 
+def build_k_indices(y, k_fold, seed):
+    """build k indices for k-fold."""
+    num_row = y.shape[0]
+    interval = int(num_row / k_fold)
+    np.random.seed(seed)
+    indices = np.random.permutation(num_row)
+    k_indices = [indices[k * interval: (k + 1) * interval]
+                 for k in range(k_fold)]
+    return np.array(k_indices)
+
+
 
 def sigmoid(t):
     """
@@ -87,13 +98,8 @@ def compute_gradient(y, tx, w):
     N=len(y)
     return -(np.transpose(tx).dot(e))/N
 
-
 def log1p_no_of(x):
     return np.where(x>700, x, np.log1p(np.exp(x)))
-#     if x > 700:
-#         return x
-#     else:
-#         return np.log1p(np.exp(x))
 
 
 def calculate_loss(y, tx, w):
@@ -104,7 +110,6 @@ def calculate_loss(y, tx, w):
             w
     OUTPUTS: negative log likelihood
     """
-    #print("xw={}, y={}, yxw ={}".format(tx.dot(w), y, y.T.dot(tx).dot(w)))
     ln = log1p_no_of(tx.dot(w))
     first = np.sum(ln)
     second = y.T.dot(tx).dot(w)
@@ -134,7 +139,6 @@ def learning_by_gradient_descent(y, tx, w, gamma):
     loss = calculate_loss(y, tx, w)
     grad = calculate_gradient(y, tx, w)
     w = w - gamma * grad
-    #loss = calculate_loss(y, tx, w)
     return w, loss
 
 
@@ -149,7 +153,7 @@ def penalized_logistic_regression(y, tx, w, lambda_):
     """
     N = tx.shape[0]
     D = tx.shape[1]
-    loss = calculate_loss(y, tx, w) + (lambda_ / 2) * np.linalg.norm(w)**2
+    loss = calculate_loss(y, tx, w) + lambda_ / 2 * np.linalg.norm(w)**2
     gradient = calculate_gradient(y, tx, w) + lambda_ * w
     
     return loss, gradient
