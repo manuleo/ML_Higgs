@@ -4,7 +4,7 @@
 
 import numpy as np
 from helpers import *
-from implementation_helpers import *
+from implementation_helpers import*
 
 
 # LEAST SQUARES SGD
@@ -82,14 +82,15 @@ def least_squares_SGD(y, tx, initial_w, max_iters, gamma):
     w = initial_w
     
     batch_size = 1
+    
     for n_iter in range(max_iters):
         
         # we pick randmly one datapoint
         # batch_inter is in my_helpers.py
         for yn, xn in batch_iter(y, tx, batch_size):
             
-            # compute_stoch_gradient is in my_helpers.py
-            g = compute_stoch_gradient(yn, xn, w)
+            # compute_gradient is in my_helpers.py
+            g = compute_gradient(yn, xn, w)
         
         # we upgrade w by the stochastic gradient
         w = w - gamma*g
@@ -160,25 +161,24 @@ def logistic_regression(y, x, initial_w, max_iters, gamma):
 
 
     """
-
+    w = initial_w
+    
     threshold = 1e-8
 
     # init parameters
     losses = []
-    w = initial_w
 
     # start the logistic regression
     for iter in range(max_iters):
         # get loss and update w.
-        #for yn, xn in batch_iter(y, x, 1):
         w, loss = learning_by_gradient_descent(y, x, w, gamma)
         # log info
-        if iter % (max_iters/10) == 0:
+        if iter % (max_iters/10)  == 0:
             print("Current iteration={i}, loss={l}".format(i=iter, l=loss))
         # converge criterion
         losses.append(loss)
         if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
-              break
+            break
     #print("loss={l}".format(l=calculate_loss(y, tx, w)))
     return w, loss
 
