@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+"""
+    Helpers for the six mandatory algorithms 
+"""
+
 import numpy as np
 
 def compute_loss(y, tx, w):
@@ -67,18 +71,6 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
 
 
 
-def build_k_indices(y, k_fold, seed):
-    """build k indices for k-fold."""
-    num_row = y.shape[0]
-    interval = int(num_row / k_fold)
-    np.random.seed(seed)
-    indices = np.random.permutation(num_row)
-    k_indices = [indices[k * interval: (k + 1) * interval]
-                 for k in range(k_fold)]
-    return np.array(k_indices)
-
-
-
 def sigmoid(t):
     """
     Returns as OUTPUT the result of the sigmoid function applied to the INPUT
@@ -98,10 +90,14 @@ def compute_gradient(y, tx, w):
     N=len(y)
     return -(np.transpose(tx).dot(e))/N
 
+
 def log1p_no_of(x):
     """
     function which approximates ln(1+e^x) to x, just to avoid overflow 
     if e^x is not computable in finite precision
+    Note: this function could produce a runtime warning for invalid values,
+    this is because numpy compute ln(1+e^x) also when the function return x, 
+    but that value is never used.
     """
     return np.where(x>700, x, np.log1p(np.exp(x)))
 
@@ -117,7 +113,6 @@ def calculate_loss(y, tx, w):
     ln = log1p_no_of(tx.dot(w))
     first = np.sum(ln)
     second = y.T.dot(tx).dot(w)
-    #print(first, second)
     return first - second
 
 def calculate_gradient(y, tx, w):
@@ -174,7 +169,6 @@ def learning_by_penalized_gradient(y, tx, w, gamma, lambda_):
     OUTPUTS: w
              loss
     """
-    #loss, gradient, hessian = penalized_logistic_regression(y, tx, w, lambda_)
     loss, gradient = penalized_logistic_regression(y, tx, w, lambda_)
     w = w - gamma * gradient
     loss, _ = penalized_logistic_regression(y, tx, w, lambda_)

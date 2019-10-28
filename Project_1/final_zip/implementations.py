@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
     This file contains the 6 mandatory algorithm implementations for the project 1
 """
@@ -218,5 +220,5 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
         losses.append(loss)
         if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
             break
-    #print("loss={l}".format(l=calculate_loss(y, tx, w)))
+        
     return w, loss
